@@ -1,3 +1,10 @@
+# define patterns that you like instead of range
+# @derberg:linuxgaming.life
+# Modified: 15th April 2019
+# Deleted blocks_range but added blocks_order.
+# You may want to re-add range and add a check wether user wants range or order.
+
+
 #!/usr/bin/env bash
 # vim: noai:ts=4:sw=4:expandtab
 # shellcheck source=/dev/null
@@ -574,6 +581,8 @@ separator=":"
 #
 # Display colors 0-15 in the blocks. (16 colors)
 # neofetch --block_range 0 15
+# Display colors that combine to a rainbow in the blocks. (6 colors)
+# neofetch --block_order 1 3 11 2 4 5
 block_range=(0 7)
 
 # Toggle color blocks
@@ -3359,20 +3368,14 @@ get_cols() {
     local blocks blocks2 cols
 
     if [[ "$color_blocks" == "on" ]]; then
-        # Convert the width to space chars.
         printf -v block_width "%${block_width}s"
-
+        #echo "number of elements: ${#block_order[@]}"
         # Generate the string.
-        for ((block_range[0]; block_range[0]<=block_range[1]; block_range[0]++)); do
-            case "${block_range[0]}" in
-                [0-7])
-                    printf -v blocks  '%b\e[3%bm\e[4%bm%b' \
-                        "$blocks" "${block_range[0]}" "${block_range[0]}" "$block_width"
-                ;;
-
+        for ((o=0; o<="$((${#block_order[@]}-1))"; o++)); do
+            case "${block_order[o]}" in
                 *)
                     printf -v blocks2 '%b\e[38;5;%bm\e[48;5;%bm%b' \
-                        "$blocks2" "${block_range[0]}" "${block_range[0]}" "$block_width"
+                        "$blocks2" "${block_order[o]}" "${block_order[o]}" "${block_width}"
                 ;;
             esac
         done
@@ -3389,7 +3392,7 @@ get_cols() {
         cols="${cols//nl/\\n\\e[${text_padding}C${zws}}"
 
         # Add block height to info height.
-        ((info_height+=block_range[1]>7?block_height+3:block_height+2))
+        ((info_height+=$((${#block_order[@]}-1))>7?block_height+3:block_height+2))
 
         printf '\n\e[%bC%b\n\n' "$text_padding" "${zws}${cols}"
     fi
@@ -4566,7 +4569,7 @@ get_args() {
 
             # Color Blocks
             "--color_blocks") color_blocks="$2" ;;
-            "--block_range") block_range=("$2" "$3") ;;
+            "--block_order") block_order=("$@") ;;
             "--block_width") block_width="$2" ;;
             "--block_height") block_height="$2" ;;
 
