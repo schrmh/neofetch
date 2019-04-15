@@ -1,8 +1,10 @@
 # define patterns that you like instead of range
 # @derberg:linuxgaming.life
 # Modified: 15th April 2019
-# Deleted blocks_range but added blocks_order.
+# Deleted block_range but added block_order.
 # You may want to re-add range and add a check wether user wants range or order.
+# Added a block_text var so that you can print white text over the blocks. Maybe add colours for that later..
+# Maybe add multiple ranges later..
 
 
 #!/usr/bin/env bash
@@ -3375,7 +3377,7 @@ get_cols() {
             case "${block_order[o]}" in
                 *)
                     printf -v blocks2 '%b\e[38;5;%bm\e[48;5;%bm%b' \
-                        "$blocks2" "${block_order[o]}" "${block_order[o]}" "${block_width}"
+                        "$blocks2" "" "${block_order[o]}" "${block_width}${block_text[o]}"
                 ;;
             esac
         done
@@ -3392,7 +3394,7 @@ get_cols() {
         cols="${cols//nl/\\n\\e[${text_padding}C${zws}}"
 
         # Add block height to info height.
-        ((info_height+=$((${#block_order[@]}-1))>7?block_height+3:block_height+2))
+        ((info_height+="$((${#block_order[@]}-1))">7?block_height+3:block_height+2))
 
         printf '\n\e[%bC%b\n\n' "$text_padding" "${zws}${cols}"
     fi
@@ -4571,6 +4573,7 @@ get_args() {
             "--color_blocks") color_blocks="$2" ;;
             "--block_order") block_order=("$@") ;;
             "--block_width") block_width="$2" ;;
+            "--block_text") block_text=("$@") ;;
             "--block_height") block_height="$2" ;;
 
             # Bars
